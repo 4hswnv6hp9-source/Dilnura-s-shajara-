@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shajara — ota va ona taraf</title>
+<style>
+:root{--bg:#1d1410;--ink:#f1e6d6;--mute:#b9a48c;--ota:#e0a458;--ona:#8fb996}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% 0,#33231a,var(--bg) 60%);color:var(--ink);font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;line-height:1.35}
+header{text-align:center;padding:2rem 1rem 0}
+h1{font-size:clamp(2rem,7vw,3.2rem);font-weight:600;margin:0}
+.sub{color:var(--mute);margin:.25rem 0 0}
+.tree{position:relative;display:grid;grid-template-columns:1fr 70px 1fr;align-items:end;max-width:900px;margin:0 auto;padding:225px 8px 110px}
+#art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.col{position:relative;z-index:1;display:flex;flex-direction:column-reverse;gap:16px}
+.col.ota{align-items:flex-end;padding-left:26px;--c:var(--ota)}
+.col.ona{align-items:flex-start;padding-right:6px;--c:var(--ona)}
+.leaf{width:100%;max-width:210px;padding:.45rem .7rem;border:2px solid var(--c);border-radius:6px 24px 6px 24px;background:color-mix(in srgb,var(--c) 14%,#1d1410)}
+.leaf.loose{border-style:dashed}
+.pp+.pp{margin-top:.3rem;padding-top:.3rem;border-top:1px dashed color-mix(in srgb,var(--c) 45%,transparent)}
+.nm{font-weight:600;font-size:.85rem;overflow-wrap:anywhere}
+.yr{color:var(--mute);font-size:.76rem}
+.cap{color:var(--mute);font-size:.78rem;font-style:italic;padding-left:.3rem}
+footer{max-width:640px;margin:0 auto;padding:0 1.25rem 2.5rem;color:var(--mute);font-size:.85rem;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>Oila shajarasi</h1>
+  <p class="sub">Ildizdan shox uchigacha: eng qadimgi avlod pastda, eng yoshlari tepada</p>
+</header>
+<div class="tree" id="tree">
+  <svg id="art" aria-hidden="true"></svg>
+  <div class="col ota" id="ota"></div><div></div><div class="col ona" id="ona"></div>
+</div>
+<footer>Ota tarafda shoxlar familiya va tug‘ilgan yilga qarab ulangan. Ona tarafda ota-bola aloqasi hali kiritilmagan, shuning uchun juftliklar tanadan alohida shox bo‘lib chiqadi. Tahrirlash: pastdagi <code>OTA</code> va <code>ONA</code> ro‘yxatlari.</footer>
+
+<script>
+const P = (n,b,d=null) => [n,b,d];
+// OTA: p = ota-ona kartasining id si. Ro'yxat pastdan tepaga (eng qadimgisi birinchi).
+const OTA = [
+  { id:"m", c:[P("Xamdamov Murod",1915,1984), P("Murodova Ogiloy",1917,1990)] },
+  { id:"r", p:"m", c:[P("Xamdamov Rustam",1940,2012), P("Turgunova Gulsara",1942)] },
+  { id:"l", p:"r", c:[P("Xamdamova Malika",1966)] },
+  { id:"b", p:"r", c:[P("Xamdamov Baxtiyor",1963)] },
+  { id:"j", p:"b", c:[P("Xamdamov Jamshid",1985)] },
+  { id:"d", p:"b", c:[P("Xamdamova Dilnoza",1988)] }
+];
+const ONA = [
+  { c:[P("Karimov Raxmatillo",1862,1938), P("Karimova Salamat",1868,1942)] },
+  { c:[P("Axmedov Axmat",1885,1950), P("Axmedova Sanam",1889,1954)] },
+  { c:[P("Yuldashev Kenja",1902,1967), P("Yuldasheva Xosiyat",1906,1972)] },
+  { c:[P("Abdullayev Avral",1908,1970), P("Abdullayeva Robiya",1912,1978)] },
+  { c:[P("Mirzayev Asror",1918,1985), P("Mirzayeva Oykiz",1921,1990)] },
+  { c:[P("Tursunov Ambar",1924,1992), P("Tursunova Manzura",1927,1998)] },
+  { c:[P("Kokonov Kokan",1931,2010), P("Kokanova Samara",1935,2021)] },
+  { loose:1, c:[P("Xamdamov Bastam",1967)] },
+  { loose:1, c:[P("Kenjayeva Nasiba",1969)] },
+  { loose:1, c:[P("Rustamova Dilnura",2008)] },
+  { cap:"aloqasi aniqlanmagan" }
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pp = ([n,b,d]) => `<div class="pp"><div class="nm">${esc(n)}</div><div class="yr">${b}${d ? " – " + d : ""}</div></div>`;
+const leaf = (side, x) => x.cap ? `<div class="cap">${esc(x.cap)}</div>`
+  : `<div class="leaf${x.loose ? " loose" : ""}" data-side="${side}"${x.id ? ` id="${side}-${x.id}"` : ""}${x.p ? ` data-p="${side}-${x.p}"` : ""}>${x.c.map(pp).join("")}</div>`;
+ota.innerHTML = OTA.map(x => leaf("ota", x)).join("");
+ona.innerHTML = ONA.map(x => leaf("ona", x)).join("");
+
+const WOOD = "#7a5535";
+const limb = (d, w, dots) => `<path d="${d}" fill="none" stroke="${WOOD}" stroke-width="${w}" stroke-linecap="round"${dots ? ' stroke-dasharray="1 10"' : ""}/>`;
+
+function draw() {
+  const t = tree.getBoundingClientRect(), W = t.width, H = t.height, cx = W / 2;
+  const top = 172, bot = H - 85, mid = (top + bot) / 2;
+  const at = e => { const r = e.getBoundingClientRect(); return { l: r.left - t.left, r: r.right - t.left, y: r.top - t.top + r.height / 2 }; };
+  art.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  let s = `<defs><linearGradient id="wood"><stop offset="0" stop-color="#4a2f1b"/><stop offset=".5" stop-color="#8a6238"/><stop offset="1" stop-color="#4a2f1b"/></linearGradient></defs>`;
+  // zamin va ildizlar
+  s += `<ellipse cx="${cx}" cy="${bot + 14}" rx="${Math.min(W / 2 - 6, 190)}" ry="24" fill="#2a1d16"/>`;
+  [[-1,120,44],[-1,70,58],[1,70,58],[1,120,44]].forEach(([d,dx,dy],i) =>
+    s += limb(`M${cx + d * 14},${bot - 8} C${cx + d * 30},${bot + 18} ${cx + d * dx * .6},${bot + dy - 14} ${cx + d * dx},${bot + dy}`, i % 3 ? 7 : 9));
+  // shoxlar (tanadan oldin chiziladi, uchi tana ortida qoladi)
+  tree.querySelectorAll(".leaf").forEach(e => {
+    const p = at(e), isOta = e.dataset.side === "ota", par = e.dataset.p && document.getElementById(e.dataset.p);
+    if (par) {
+      const q = at(par), o = 28;
+      s += limb(`M${q.l},${q.y} C${q.l - o},${q.y} ${p.l - o},${p.y} ${p.l},${p.y}`, 5);
+    } else {
+      const d = isOta ? -1 : 1, x2 = isOta ? p.r : p.l, sy = Math.min(bot - 24, p.y + 55);
+      s += limb(`M${cx},${sy} C${cx + d * 45},${sy} ${x2 - d * 40},${p.y} ${x2},${p.y}`, e.classList.contains("loose") ? 4 : 7, e.classList.contains("loose"));
+    }
+  });
+  // tana
+  s += `<path d="M${cx - 38},${bot} C${cx - 22},${bot - 90} ${cx - 18},${mid} ${cx - 12},${top} L${cx + 12},${top} C${cx + 18},${mid} ${cx + 22},${bot - 90} ${cx + 38},${bot}Z" fill="url(#wood)"/>`;
+  [[-3,.2],[4,.35],[-6,.1]].forEach(([dx,k]) => s += `<path d="M${cx + dx * 3},${bot - 6} C${cx + dx},${mid + 90} ${cx + dx * 1.5},${mid - 60} ${cx + dx},${top + 30}" fill="none" stroke="#2f1d0f" stroke-opacity=".55" stroke-width="1.5"/>`);
+  // toj
+  const gold = "#e0a458", green = "#8fb996";
+  [[-70,-6,46,gold],[-112,22,34,gold],[-96,-34,34,gold],[-42,-40,40,gold],[70,-6,46,green],[112,22,34,green],[96,-34,34,green],[42,-40,40,green],[0,-52,36,gold],[0,-12,40,green]]
+    .forEach(([dx,dy,r,c]) => s += `<circle cx="${cx + dx}" cy="${top + dy - 10}" r="${r}" fill="${c}" fill-opacity=".92"/>`);
+  s += `<g font-family="Georgia,serif" font-weight="700" font-size="14" fill="#1d1410" text-anchor="middle"><text x="${cx - 74}" y="${top - 12}">Ota taraf</text><text x="${cx + 74}" y="${top - 12}">Ona taraf</text></g>`;
+  art.innerHTML = s;
+}
+new ResizeObserver(draw).observe(tree);
+draw();
+document.fonts && document.fonts.ready.then(draw);
+</script>
+</body>
+</html>
